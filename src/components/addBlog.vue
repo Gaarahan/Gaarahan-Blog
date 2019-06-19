@@ -3,12 +3,18 @@
     <div class="form-group">
       <label for="title">博客标题:</label>
       <input type="text" name="blogTitle" id="title" v-model="blog.title"
-      v-focus="titleFocusing"
-      @blur="titleFocusing=false">
+             v-focus="titleFocusing"
+             @focus="titleFocusing=true"
+             @blur="titleFocusing=false">
     </div>
     <div class="form-group content-group">
       <label for="content">博客内容:</label>
-      <textarea name="blogContent" id="content" cols="30" rows="10" v-model="blog.content"></textarea>
+      <textarea name="blogContent" id="content" cols="30" rows="10"
+                v-model="blog.content"
+                v-focus="contentFocusing"
+                @focus="contentFocusing=true"
+                @blur="contentFocusing=false"
+      ></textarea>
     </div>
     <div class="form-group">
       <div class="tag-contain" :class="{tagConFocus: tagInputFocusing}">
@@ -29,7 +35,7 @@
       </div>
     </div>
     <div class="form-group">
-      <input type="submit" value="添加" @click.prevent="submitBlog">
+      <input type="submit" value="添加" @click.prevent="checkSubmit">
     </div>
   </form>
 </template>
@@ -46,7 +52,8 @@ export default {
       },
       tag: '',
       tagInputFocusing: false,
-      titleFocusing: false
+      titleFocusing: false,
+      contentFocusing: false
     }
   },
   methods: {
@@ -73,11 +80,29 @@ export default {
     removeTagBox () {
       this.tagInputFocusing = false
     },
-    submitBlog () {
+    checkSubmit () {
       this.blog.title = this.blog.title.trim()
       if (this.blog.title === '') {
         this.titleFocusing = true
+        return false
       }
+      if (this.blog.content.trim() === '') {
+        this.contentFocusing = true
+        return false
+      }
+      if (this.blog.tagList.length === 0) {
+        // TODO 优化alert提示
+        let noTagSetAnswer = confirm('确定不为你的博客添加任何标签吗?')
+        if (noTagSetAnswer === false) { return false }
+      }
+      this.submitBlog()
+    },
+    submitBlog () {
+      this.axios.post(this.addServerLocation, this.blog)
+        .then((res) => {
+          // TODO 处理返回
+          console.log(res)
+        })
     }
   },
   computed: {
@@ -87,9 +112,14 @@ export default {
   },
   directives: {
     // 自定义指令,控制title及content的focus,当指令所在的vnode更新后调用
+    // 参数 el 为绑定的元素,binding包括指令名,指令绑定值等参数
     focus: {
-      componentUpdated (el) {
-        el.focus()
+      componentUpdated (el, binding) {
+        if (binding.value) {
+          el.focus()
+        } else {
+          el.blur()
+        }
       }
     }
   }
