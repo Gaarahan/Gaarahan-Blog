@@ -1,5 +1,5 @@
 <template>
-  <form :action="addServerLocation" method="post">
+  <form action="#" method="post">
     <div class="form-group">
       <label for="title">博客标题:</label>
       <input type="text" name="blogTitle" id="title" v-model="blog.title"
@@ -98,16 +98,11 @@ export default {
       this.submitBlog()
     },
     submitBlog () {
-      this.axios.post(this.addServerLocation, this.blog)
+      this.axios.post('/server/addBlog', this.blog)
         .then((res) => {
           // TODO 处理返回
           console.log(res)
         })
-    }
-  },
-  computed: {
-    addServerLocation () {
-      return window.location.host + '/server/addBlog'
     }
   },
   directives: {
