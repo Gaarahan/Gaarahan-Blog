@@ -1,11 +1,8 @@
-const express = require('express')
-const app = express()
-const mysql = require('mpysql')
+const Koa = require('koa')
+const app = new Koa()
 
-app.all('/',(req,res)=>{
-  console.log(req.url);
+app.use(async ctx => {
+  ctx.body = 'hello world'
 })
 
-app.listen('9999',()=>{
-  console.log('listening : http://localhost:9999');
-})
+app.listen(8080)
